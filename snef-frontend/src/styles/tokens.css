@@ -1,0 +1,31 @@
+/* src/styles/tokens.css */
+
+:root {
+  /* Tipografía */
+  --font-primary: 'Poppins', system-ui, sans-serif;
+
+  /* Fondos */
+  --color-bg: #141414;
+  --color-surface: #1A1A1A;
+  --color-border: #373737;
+
+  /* Texto */
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #999999;
+
+  /* Marca */
+  --color-primary: #6AB439;
+  --color-secondary: #22ADE4;
+  --color-link: #22ADE4;
+
+  /* Radios */
+  --radius-panel: 30px;
+  --radius-card: 10px;
+  --radius-pill: 999px;
+
+  /* Layout */
+  --navbar-height: 72px;
+
+  /* Sombras suaves para tema oscuro */
+  --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.28);
+}
