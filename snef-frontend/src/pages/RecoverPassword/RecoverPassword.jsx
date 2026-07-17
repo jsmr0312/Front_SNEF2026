@@ -74,7 +74,6 @@ export default function RecoverPassword() {
               <NewPasswordStep
                 form={form}
                 onChange={updateField}
-                onBack={() => setCurrentStep(1)}
                 onSubmit={handleCreateNewPassword}
               />
             )}
@@ -161,7 +160,7 @@ function RecoveryValidationStep({ form, onChange, onSubmit }) {
   );
 }
 
-function NewPasswordStep({ form, onChange, onBack, onSubmit }) {
+function NewPasswordStep({ form, onChange, onSubmit }) {
   return (
     <>
       <div className="mb-10">

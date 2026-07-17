@@ -18,6 +18,7 @@ import FormInput from '../../components/ui/FormInput';
 import SelectInput from '../../components/ui/SelectInput';
 import OptionSelector from '../../components/ui/OptionSelector';
 import StepIndicator from '../../components/ui/StepIndicator';
+import Navbar from '../../components/ui/Navbar';
 
 export default function DesignSystem() {
     const [previewState, setPreviewState] = useState({
@@ -402,6 +403,16 @@ export default function DesignSystem() {
             </div>
           </div>
         </section>
+        <section className="snef-panel overflow-hidden p-6 md:p-8">
+  <SectionTitle
+    title="Navbar"
+    description="Barra principal de navegación para usuarios autenticados e invitados. Incluye logo, navegación principal, accesos a Unity y datos del usuario."
+  />
+
+  <div className="mt-6 rounded-[30px] border border-[#373737] bg-[#141414] p-4">
+    <Navbar />
+  </div>
+</section>
       </div>
     </main>
   );

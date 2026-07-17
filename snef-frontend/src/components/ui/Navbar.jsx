@@ -1,9 +1,9 @@
-// src/components/Navbar.jsx
+// src/components/ui/Navbar.jsx
 
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { Video, Film } from 'lucide-react';
 
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/authState';
 
 import logoSnef from '../../assets/brand/logoSNEF2026.svg';
 import ditasIcon from '../../assets/iconos/ditas.png';
@@ -13,6 +13,7 @@ const navItems = [
   {
     label: 'Inicio',
     to: '/home',
+    activePaths: ['/home', '/catalogo'],
   },
   {
     label: 'Progreso',
@@ -20,45 +21,57 @@ const navItems = [
   },
 ];
 
-export default function Navbar() {
+export default function Navbar({ variant = 'default' }) {
   const { user } = useAuth();
+  const unityBuildUrl = '/unity-local/Build2/index.html';
+  const isOverlay = variant === 'overlay';
 
   const handleOpenRecordingSet = () => {
-    // TODO: redirigir al iframe o ruta del set de grabación Unity
-    console.log('Abrir set de grabación');
+    window.location.href = unityBuildUrl;
   };
 
   const handleOpenCinema = () => {
-    const token = localStorage.getItem('snef_token');
-
-    // TODO: reemplazar con la URL real del build Unity.
-    const unityUrl = token
-      ? `/cine-virtual?token=${encodeURIComponent(token)}`
-      : '/cine-virtual?guest=true';
-
-    console.log('Abrir cine:', unityUrl);
+    window.location.href = unityBuildUrl;
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#141414]/90 px-4 py-5 backdrop-blur-md md:px-8">
-      <nav className="mx-auto flex max-w-[1540px] items-center justify-between gap-6">
-        <NavLink to="/home" className="shrink-0">
+    <header
+      className={`
+        top-0 z-50 w-full px-4 py-5 md:px-8
+        ${
+          isOverlay
+            ? 'absolute bg-transparent'
+            : 'sticky bg-[#141414]/95 backdrop-blur-md'
+        }
+      `}
+    >
+      <nav className="snef-layout-container flex items-center justify-between gap-6">
+        <NavLink
+          to="/home"
+          className="flex h-[82px] shrink-0 items-center no-underline hover:no-underline"
+          aria-label="Ir al inicio"
+        >
           <img
             src={logoSnef}
-            alt="Semana Nacional de Educación Financiera 2026"
-            className="h-auto w-[150px] md:w-[180px]"
+            alt="Semana Nacional de EducaciÃ³n Financiera 2026"
+            className="h-[72px] w-auto object-contain"
           />
         </NavLink>
 
         <div
           className="
-            hidden items-center gap-7 rounded-full border border-[#1A1A1A]
-            bg-[#0F0F0F] px-8 py-3 shadow-[0_14px_40px_rgba(0,0,0,0.24)]
+            hidden h-[82px] items-center gap-7 rounded-full
+            border border-[#1A1A1A] bg-[#0F0F0F]
+            px-8 py-3
             xl:flex
           "
         >
           {navItems.map((item) => (
-            <NavbarNavButton key={item.to} to={item.to}>
+            <NavbarNavButton
+              key={item.to}
+              to={item.to}
+              activePaths={item.activePaths}
+            >
               {item.label}
             </NavbarNavButton>
           ))}
@@ -76,29 +89,33 @@ export default function Navbar() {
   );
 }
 
-function NavbarNavButton({ to, children }) {
+function NavbarNavButton({ to, activePaths = [], children }) {
+  const location = useLocation();
+
   return (
     <NavLink
       to={to}
-      className={({ isActive }) => `
-        relative inline-flex min-w-[160px] items-center justify-center rounded-full
-        px-8 py-3 text-lg font-medium transition-all duration-300 ease-out
-        active:scale-[0.96]
+      className={({ isActive }) => {
+        const isSelected = isActive || activePaths.includes(location.pathname);
+
+        return `
+        group relative inline-flex min-w-[160px] items-center justify-center overflow-hidden
+        rounded-full px-8 py-3 text-lg font-medium no-underline
+        transition-all duration-300 ease-out
+        hover:no-underline active:scale-[0.96]
         ${
-          isActive
+          isSelected
             ? `
-              bg-[#1A1A1A] text-white
-              before:absolute before:inset-0 before:rounded-full before:p-[3px]
-              before:bg-gradient-to-b before:from-[#6AB439] before:to-[#22ADE4]
-              before:[mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)]
-              before:[mask-composite:exclude]
+              border-[2px] border-transparent bg-[#1A1A1A] text-white
+              [background:linear-gradient(#1A1A1A,#1A1A1A)_padding-box,linear-gradient(180deg,#6AB439,#22ADE4)_border-box]
             `
             : `
               border-[3px] border-[#0F0F0F] bg-[#1A1A1A] text-[#999999]
               hover:bg-[#1D1D1D] hover:text-white
             `
         }
-      `}
+      `;
+      }}
     >
       <span className="relative z-10 text-inherit">
         {children}
@@ -113,7 +130,7 @@ function NavbarActionButton({ children, icon: Icon, onClick }) {
       type="button"
       onClick={onClick}
       className="
-        inline-flex min-w-[270px] items-center justify-center gap-3 rounded-full
+        group inline-flex min-w-[270px] items-center justify-center gap-3 rounded-full
         border-[3px] border-[#0F0F0F] bg-[#1A1A1A]
         px-8 py-3 text-lg font-medium text-[#999999]
         transition-all duration-300 ease-out
@@ -142,22 +159,27 @@ function CinemaButton({ onClick }) {
       type="button"
       onClick={onClick}
       className="
-        inline-flex min-w-[250px] items-center justify-center gap-3 rounded-full
-        border border-[#6AB439] bg-[#1A1A1A]
+        group relative inline-flex min-w-[250px] items-center justify-center gap-3 overflow-hidden
+        rounded-full border border-[#6AB439] bg-[#1A1A1A]
         px-8 py-3 text-lg font-medium text-white
         transition-all duration-300 ease-out
-        hover:bg-[#1D1D1D] hover:shadow-[0_14px_34px_rgba(106,180,57,0.16)]
+        hover:bg-[#1D1D1D]
         active:scale-[0.96]
+        before:absolute before:left-1/2 before:top-1/2
+        before:h-10 before:w-28 before:-translate-x-1/2 before:-translate-y-1/2
+        before:rounded-full before:bg-[#6AB439]/20 before:opacity-0 before:blur-xl
+        before:transition-opacity before:duration-300
+        hover:before:opacity-100
       "
     >
-      <span className="text-white">
+      <span className="relative z-10 text-white">
         Visitar cine
       </span>
 
       <Film
         size={24}
         strokeWidth={2.5}
-        className="text-[#22ADE4] transition-transform duration-300"
+        className="relative z-10 text-[#22ADE4] transition-transform duration-300 group-hover:scale-110"
       />
     </button>
   );
@@ -166,19 +188,19 @@ function CinemaButton({ onClick }) {
 function UserCard({ user }) {
   const username = user?.username || 'Invitado';
   const ditas = user?.ditas ?? 0;
-  const avatar = user?.avatar || defaultAvatar;
 
   return (
     <div
       className="
-        hidden items-center gap-4 rounded-full border border-[#1A1A1A]
-        bg-[#0F0F0F] px-5 py-2.5 shadow-[0_14px_40px_rgba(0,0,0,0.24)]
+        hidden h-[82px] items-center gap-4 rounded-full
+        border border-[#1A1A1A] bg-[#0F0F0F]
+        px-5 py-2.5
         md:flex
       "
     >
       <div className="rounded-full bg-gradient-to-b from-[#22ADE4] to-[#6AB439] p-[3px]">
         <img
-          src={avatar}
+          src={defaultAvatar}
           alt={`Avatar de ${username}`}
           className="h-16 w-16 rounded-full bg-[#1A1A1A] object-cover"
         />

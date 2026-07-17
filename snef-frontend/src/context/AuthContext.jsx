@@ -1,25 +1,22 @@
 // src/context/AuthContext.jsx
 
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { loginAsGuest, loginUser } from '../services/api';
-
-const AuthContext = createContext(null);
+import { AuthContext } from './authState';
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
-
-  useEffect(() => {
+  const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem('snef_user');
 
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      return JSON.parse(savedUser);
     }
 
-    setIsAuthLoading(false);
-  }, []);
+    return null;
+  });
+  const [isAuthLoading] = useState(false);
 
-  const saveSession = ({ token, user: nextUser }) => {
+  const saveSession = useCallback(({ token, user: nextUser }) => {
     if (token) {
       localStorage.setItem('snef_token', token);
     } else {
@@ -29,27 +26,27 @@ export function AuthProvider({ children }) {
     // Si es invitado no persistimos progreso real, pero sí guardamos sesión local temporal.
     localStorage.setItem('snef_user', JSON.stringify(nextUser));
     setUser(nextUser);
-  };
+  }, []);
 
-  const handleLogin = async (credentials) => {
+  const handleLogin = useCallback(async (credentials) => {
     const session = await loginUser(credentials);
     saveSession(session);
 
     return session;
-  };
+  }, [saveSession]);
 
-  const handleGuestLogin = async () => {
+  const handleGuestLogin = useCallback(async () => {
     const session = await loginAsGuest();
     saveSession(session);
 
     return session;
-  };
+  }, [saveSession]);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('snef_token');
     localStorage.removeItem('snef_user');
     setUser(null);
-  };
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -62,7 +59,7 @@ export function AuthProvider({ children }) {
       logout,
       setUser,
     }),
-    [user, isAuthLoading]
+    [user, isAuthLoading, handleLogin, handleGuestLogin, logout]
   );
 
   return (
@@ -70,14 +67,4 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error('useAuth debe usarse dentro de AuthProvider');
-  }
-
-  return context;
 }

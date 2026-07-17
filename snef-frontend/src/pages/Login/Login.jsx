@@ -1,18 +1,21 @@
 // src/pages/Login/Login.jsx
-
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import Button from '../../components/ui/Button';
 import FormInput from '../../components/ui/FormInput';
 import PasswordInput from '../../components/ui/PasswordInput';
+import Modal from '../../components/ui/Modal';
 
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/authState';
 
 import loginHero from '../../assets/login-hero.png';
 
 export default function Login() {
   const navigate = useNavigate();
   const { login, guestLogin } = useAuth();
+
+  const [showGuestWarning, setShowGuestWarning] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -25,7 +28,11 @@ export default function Login() {
     navigate('/home');
   };
 
-  const handleGuestAccess = async () => {
+  const handleOpenGuestWarning = () => {
+    setShowGuestWarning(true);
+  };
+
+  const handleConfirmGuestAccess = async () => {
     await guestLogin();
     navigate('/home');
   };
@@ -37,10 +44,50 @@ export default function Login() {
 
         <LoginPanel
           onSubmit={handleSubmit}
-          onGuestAccess={handleGuestAccess}
+          onGuestAccess={handleOpenGuestWarning}
         />
       </section>
+
+      <GuestWarningModal
+        isOpen={showGuestWarning}
+        onClose={() => setShowGuestWarning(false)}
+        onConfirm={handleConfirmGuestAccess}
+      />
     </main>
+  );
+}
+
+function GuestWarningModal({ isOpen, onClose, onConfirm }) {
+  return (
+    <Modal
+      isOpen={isOpen}
+      title="Advertencia"
+      onClose={onClose}
+      actions={
+        <Button
+          type="button"
+          variant="primaryGreen"
+          onClick={onConfirm}
+          className="min-w-[150px] !px-5 !py-2.5 text-sm"
+        >
+          Aceptar y jugar
+        </Button>
+      }
+    >
+      <div
+        className="
+          rounded-[8px] bg-[#1A1A1A]
+          px-6 py-9 text-center
+          md:px-12
+        "
+      >
+        <p className="text-base leading-7 text-white md:text-lg">
+          En el modo invitado se perderá todo tu progreso, en caso de querer
+          guardar tu progreso te invitamos a iniciar sesión o registrarte en
+          caso de que aún no tengas una cuenta.
+        </p>
+      </div>
+    </Modal>
   );
 }
 

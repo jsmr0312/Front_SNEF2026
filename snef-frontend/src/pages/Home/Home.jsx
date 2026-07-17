@@ -1,30 +1,30 @@
-// src/pages/Home/Home.jsx
+import { Link } from 'react-router-dom';
 
+import CinemaSponsorSection from '../../components/home/CinemaSponsorSection';
+import SponsorShelfSection from '../../components/home/SponsorShelfSection';
 import Navbar from '../../components/ui/Navbar';
-import { useAuth } from '../../context/AuthContext';
+import { getSponsorShelfById } from '../../data/sponsors/sponsorShelves';
+
+const homeShelfIds = ['oro', 'plata', 'bronce'];
 
 export default function Home() {
-  const { user } = useAuth();
-
   return (
     <main className="snef-page min-h-screen">
       <Navbar />
 
-      <section className="snef-container py-10">
-        <div className="snef-panel p-8 md:p-10">
-          <p className="mb-3 text-sm font-medium text-[#22ADE4]">
-            Inicio de plataforma
-          </p>
+      <CinemaSponsorSection />
 
-          <h1 className="mb-4 text-3xl font-semibold text-white md:text-5xl">
-            Bienvenido, {user?.username || 'Invitado'}
-          </h1>
+      {homeShelfIds.map((shelfId) => (
+        <SponsorShelfSection
+          key={shelfId}
+          shelf={getSponsorShelfById(shelfId)}
+        />
+      ))}
 
-          <p className="max-w-2xl text-base leading-7 text-[#999999]">
-            Esta será la pantalla principal del catálogo de películas. Aquí
-            organizaremos las secciones Platinum, Oro y Plata.
-          </p>
-        </div>
+      <section className="home-catalog-cta" aria-label="Cat\u00e1logo completo">
+        <Link to="/catalogo" className="home-catalog-cta__button">
+          Ver cat&aacute;logo completo
+        </Link>
       </section>
     </main>
   );

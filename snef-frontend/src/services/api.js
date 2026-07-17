@@ -1,7 +1,7 @@
 // src/services/api.js
 
-const API_URL = 'https://api.snef.mx';
-const USE_MOCKS = true;
+const API_URL = import.meta.env.VITE_API_URL ?? '';
+const USE_MOCKS = import.meta.env.VITE_USE_MOCKS !== 'false';
 
 export function getHeaders() {
   const token = localStorage.getItem('snef_token');
@@ -34,6 +34,10 @@ export async function loginUser(credentials) {
       token: 'mock-jwt-token-snef-2026',
       user: mockUser,
     };
+  }
+
+  if (!API_URL) {
+    throw new Error('VITE_API_URL no estÃ¡ configurada');
   }
 
   const response = await fetch(`${API_URL}/auth/login`, {
